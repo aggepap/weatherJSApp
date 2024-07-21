@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  min-width: 350px;
+}
+.locate-city {
+  position: relative;
+}
+.locate-city .tooltiptext {
+  opacity: 0;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  transition: opacity 0.2s;
+
+  /* Position the tooltip */
+  position: absolute;
+  top: -10px;
+  left: 50px;
+  z-index: 1;
+}
+
+.locate-city:hover .tooltiptext {
+  opacity: 100%;
+}
+@media (max-width: 768px) {
+  .locate-city .tooltiptext {
+    display: none;
+  }
+}
