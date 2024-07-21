@@ -1,5 +1,5 @@
 const APIKEY = "";
-
+let lang = "el";
 // QuerySelectors
 const tempDiv = document.querySelector(".weather-deg");
 const tempMinDiv = document.querySelector("#minTemp");
@@ -55,17 +55,9 @@ function loadWeather() {
 
   extendedButton.addEventListener("click", function (e) {
     e.preventDefault();
-    console.log("clicked");
-    if (document.querySelector(".extended-forecast").innerHTML === "") {
-      extendedButton.disabled = false;
-      getWeatherFromCity(
-        document.querySelector(".city-name").textContent,
-        get3HoursWeatherFromCoords
-      );
-    } else {
-      extendedButton.disabled = false;
-      document.querySelector(".extended-forecast").innerHTML = "";
-    }
+    document
+      .querySelector(".extended-forecast-wrapper")
+      .classList.toggle("hidden");
   });
 }
 
@@ -76,10 +68,12 @@ function loadWeather() {
 async function getWeatherFromCity(acity, callback) {
   try {
     await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${acity}&lang=el&appid=${APIKEY}`
+      `https://api.openweathermap.org/data/2.5/weather?q=${acity}&lang=${lang}&appid=${APIKEY}`
     )
       .then((response) => {
-        return response.json();
+        if (response.ok) {
+          return response.json();
+        }
       })
       .then((data) => {
         const lat = data.coord.lat;
@@ -87,9 +81,15 @@ async function getWeatherFromCity(acity, callback) {
         callback(lat, lon);
       });
   } catch (error) {
-    showInfoIcon("fa-triangle-exclamation fa-fade");
-    document.querySelector(".city-name").textContent = "Δεν βρέθηκε";
-
+    if (callback === getWeatherFromCoords) {
+      showInfoIcon("fa-triangle-exclamation fa-fade");
+      document.querySelector(".city-name").textContent = "Δεν βρέθηκε";
+    } else if (callback === get3HoursWeatherFromCoords) {
+      showInfoIcon("fa-triangle-exclamation fa-fade");
+      document.querySelector(".city-name").textContent =
+        "Δεν έχετε επιλέξει πόλη";
+    }
+    reset();
     throw error;
   }
 }
@@ -102,7 +102,7 @@ async function getWeatherFromCity(acity, callback) {
 async function getWeatherFromCoords(lat, lon) {
   try {
     await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APIKEY}&units=metric&lang=el`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${APIKEY}&units=metric&lang=${lang}`
     )
       .then((response) => {
         return response.json();
@@ -110,6 +110,12 @@ async function getWeatherFromCoords(lat, lon) {
       .then((data) => {
         console.log(data);
         addWeatherToPage(data);
+      })
+      .then(() => {
+        document
+          .querySelector(".extended-forecast-wrapper")
+          .classList.add("hidden");
+        get3HoursWeatherFromCoords(lat, lon);
       });
   } catch (error) {
     throw error;
@@ -119,7 +125,7 @@ async function getWeatherFromCoords(lat, lon) {
 async function get3HoursWeatherFromCoords(lat, lon) {
   try {
     await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIKEY}&units=metric&lang=el`
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${APIKEY}&units=metric&lang=${lang}`
     )
       .then((response) => {
         return response.json();
@@ -211,45 +217,27 @@ function addWeatherToPage(data) {
 
 function addExtendedWeatherToPage(data) {
   const list = data.list;
-
-  for (let i = 0; i <= 4; i++) {
+  for (let i = 0; i <= 8; i += 2) {
     const icon = getWeatherIcon(list[i].weather[0].icon, "fa-2x");
     const hour = new Date(list[i].dt * 1000).getHours();
     const temperature = Math.round(list[i].main.temp);
     const desc = list[i].weather[0].description;
 
     const html = `
-    <div class="extended-${i}">
-           <div
-             class="extended w-full md:w-36 flex flex-row sm:flex-col gap-5 items-center justify-center"
-           >
-             <div class="flex flex-row sm:flex-col gap-3 items-center">
-               <div class="extended-weather-icon-wrapper text-white">
-                 ${icon}
-               </div>
- 
-               <div class="">
-                 <div class="text-white font-semibold text-xl">
-                   <p class="extended-hour text-center">${hour}:00</p>
-                 </div>
-               </div>
-             </div>
-             <div class="flex flex-row sm:flex-col gap-3 items-center justify-center">
-               <div class="extended-weather-deg text-white text-3xl pl-3">
-                 ${temperature}&deg;
-               </div>
-               <div>
-                 <div class="extended-weather-desc text-center sm:text-start text-white">
-                   ${desc}
-                 </div>
-               </div>
-               <div>
-              
-               </div>
-             </div>
-           </div>
-         </div>
-   
+    <div class="extended-${i} extended">
+    <div
+      class="extended-weather-icon-wrapper flex flex-row sm:flex-col gap-3 items-center text-white"
+    >
+      ${icon}
+    </div>
+      <div class="text-white font-semibold text-xl">
+        <p class="extended-hour text-center">${hour}:00</p>
+      </div>
+    <div class="extended-weather-deg text-white text-3xl pl-3">
+      ${temperature}&deg;
+    </div>
+    <div class="extended-weather-desc text-center  ; text-white">${desc}</div>
+  </div>
    `;
     document
       .querySelector(".extended-forecast")
@@ -278,6 +266,7 @@ function getPosition() {
       document.querySelector(".city-name").textContent =
         "Τοποθεσία μη διαθέσιμη";
     }
+    reset();
   } catch (error) {
     throw error;
   }
@@ -357,7 +346,7 @@ function showInfoIcon(icon) {
   document.querySelector(".weather-icon-wrapper").innerHTML = html;
 }
 
-let isoCountries = {
+let isoCountriesEng = {
   AF: "Afghanistan",
   AX: "Aland Islands",
   AL: "Albania",
@@ -605,6 +594,253 @@ let isoCountries = {
   ZW: "Zimbabwe",
 };
 
+let isoCountries = {
+  AF: "Αφγανιστάν ",
+  AX: "Νήσοι Åland",
+  AL: "Αλβανία",
+  DZ: "Αλγερία",
+  AS: "Σαμόα",
+  AD: "Ανδόρρα",
+  AO: "Ανγκόλα",
+  AI: "Ανγκίλα",
+  AQ: "Ανταρκτική",
+  AG: "Αντίγκουα και Μπαρμπούντα",
+  AR: "Αργεντινή",
+  AM: "Αρμενία",
+  AW: "Αρούμπα",
+  AU: "Αυστραλία",
+  AT: "Αυστρία",
+  AZ: "Αζερμπαιτζάν",
+  BS: "Μπαχάμες",
+  BH: "Μπαχρέιν",
+  BD: "Μπαγκλαντες",
+  BB: "Μπαρμπέιντος",
+  BY: "Λευκορωσία",
+  BE: "Βέλγιο",
+  BZ: "Μπελίζ",
+  BJ: "Μπενίν",
+  BM: "Βερμούδες",
+  BT: "Μπουτάν",
+  BO: "Μπολιβία",
+  BA: "Βοσνία",
+  BW: "Μποτσουάνα",
+  BV: "Νήσοι Μπουβέτ",
+  BR: "Βραζιλία",
+  IO: "Βρετανικά Εδάφη Ινδικού Ωκεανού",
+  BN: "Μπρουνέι",
+  BG: "Βουλγαρία",
+  BF: "Μπουρκίνα φάσο",
+  BI: "Burundi",
+  KH: "Καμπότζη",
+  CM: "Καμερούν",
+  CA: "Καναδάς",
+  CV: "Πράσινο Ακρωτήριο",
+  KY: "Νήσοι Κέιμαν",
+  CF: "Κεντροαφρικανική Δημοκρατία",
+  TD: "Τσαντ",
+  CL: "Χιλή",
+  CN: "Κίνα",
+  CX: "Νήσος Χριστουγέννων",
+  CC: "Cocos (Keeling) Islands",
+  CO: "Κολομβία",
+  KM: "Comoros",
+  CG: "Congo",
+  CD: "Congo, Democratic Republic",
+  CK: "Cook Islands",
+  CR: "Κοστα Ρίκα",
+  CI: "Cote D'Ivoire",
+  HR: "Croatia",
+  CU: "Κούβα",
+  CY: "Κύπρος",
+  CZ: "Τσεχία",
+  DK: "Δανία",
+  DJ: "Τζιμπουτί",
+  DM: "Dominica",
+  DO: "Dominican Republic",
+  EC: "Εκουαδόρ",
+  EG: "Αίγυπτος",
+  SV: "El Salvador",
+  GQ: "Equatorial Guinea",
+  ER: "Eritrea",
+  EE: "Εσθονία",
+  ET: "Ethiopia",
+  FK: "Falkland Islands (Malvinas)",
+  FO: "Faroe Islands",
+  FJ: "Fiji",
+  FI: "Φινλανδία",
+  FR: "Γαλλία",
+  GF: "French Guiana",
+  PF: "French Polynesia",
+  TF: "French Southern Territories",
+  GA: "Gabon",
+  GM: "Gambia",
+  GE: "Georgia",
+  DE: "Γερμανία",
+  GH: "Γκάνα",
+  GI: "Γιβραλτάρ",
+  GR: "Ελλάδα",
+  GL: "Greenland",
+  GD: "Grenada",
+  GP: "Guadeloupe",
+  GU: "Guam",
+  GT: "Guatemala",
+  GG: "Guernsey",
+  GN: "Guinea",
+  GW: "Guinea-Bissau",
+  GY: "Guyana",
+  HT: "Haiti",
+  HM: "Heard Island & Mcdonald Islands",
+  VA: "Holy See (Vatican City State)",
+  HN: "Honduras",
+  HK: "Hong Kong",
+  HU: "Hungary",
+  IS: "Ισλανδία",
+  IN: "India",
+  ID: "Ινδονησία",
+  IR: "Iran, Islamic Republic Of",
+  IQ: "Ιράκ",
+  IE: "Ιρλανδία",
+  IM: "Isle Of Man",
+  IL: "Ισραήλ",
+  IT: "Ιταλία",
+  JM: "Τζαμάικα",
+  JP: "Ιαπωνία",
+  JE: "Jersey",
+  JO: "Ιορδανία",
+  KZ: "Καζακστάν",
+  KE: "Kenya",
+  KI: "Kiribati",
+  KR: "Korea",
+  KW: "Kuwait",
+  KG: "Kyrgyzstan",
+  LA: "Lao People's Democratic Republic",
+  LV: "Latvia",
+  LB: "Lebanon",
+  LS: "Lesotho",
+  LR: "Liberia",
+  LY: "Libyan Arab Jamahiriya",
+  LI: "Liechtenstein",
+  LT: "Lithuania",
+  LU: "Luxembourg",
+  MO: "Macao",
+  MK: "Macedonia",
+  MG: "Madagascar",
+  MW: "Malawi",
+  MY: "Malaysia",
+  MV: "Maldives",
+  ML: "Mali",
+  MT: "Malta",
+  MH: "Marshall Islands",
+  MQ: "Martinique",
+  MR: "Mauritania",
+  MU: "Mauritius",
+  YT: "Mayotte",
+  MX: "Mexico",
+  FM: "Micronesia, Federated States Of",
+  MD: "Moldova",
+  MC: "Monaco",
+  MN: "Mongolia",
+  ME: "Montenegro",
+  MS: "Montserrat",
+  MA: "Morocco",
+  MZ: "Mozambique",
+  MM: "Myanmar",
+  NA: "Namibia",
+  NR: "Nauru",
+  NP: "Nepal",
+  NL: "Netherlands",
+  AN: "Netherlands Antilles",
+  NC: "New Caledonia",
+  NZ: "New Zealand",
+  NI: "Nicaragua",
+  NE: "Niger",
+  NG: "Nigeria",
+  NU: "Niue",
+  NF: "Norfolk Island",
+  MP: "Northern Mariana Islands",
+  NO: "Norway",
+  OM: "Oman",
+  PK: "Pakistan",
+  PW: "Palau",
+  PS: "Palestinian Territory, Occupied",
+  PA: "Panama",
+  PG: "Papua New Guinea",
+  PY: "Paraguay",
+  PE: "Peru",
+  PH: "Philippines",
+  PN: "Pitcairn",
+  PL: "Poland",
+  PT: "Portugal",
+  PR: "Puerto Rico",
+  QA: "Qatar",
+  RE: "Reunion",
+  RO: "Romania",
+  RU: "Russian Federation",
+  RW: "Rwanda",
+  BL: "Saint Barthelemy",
+  SH: "Saint Helena",
+  KN: "Saint Kitts And Nevis",
+  LC: "Saint Lucia",
+  MF: "Saint Martin",
+  PM: "Saint Pierre And Miquelon",
+  VC: "Saint Vincent And Grenadines",
+  WS: "Samoa",
+  SM: "San Marino",
+  ST: "Sao Tome And Principe",
+  SA: "Saudi Arabia",
+  SN: "Senegal",
+  RS: "Serbia",
+  SC: "Seychelles",
+  SL: "Sierra Leone",
+  SG: "Singapore",
+  SK: "Slovakia",
+  SI: "Slovenia",
+  SB: "Solomon Islands",
+  SO: "Somalia",
+  ZA: "South Africa",
+  GS: "South Georgia And Sandwich Isl.",
+  ES: "Spain",
+  LK: "Sri Lanka",
+  SD: "Sudan",
+  SR: "Suriname",
+  SJ: "Svalbard And Jan Mayen",
+  SZ: "Swaziland",
+  SE: "Sweden",
+  CH: "Switzerland",
+  SY: "Syrian Arab Republic",
+  TW: "Taiwan",
+  TJ: "Tajikistan",
+  TZ: "Tanzania",
+  TH: "Thailand",
+  TL: "Timor-Leste",
+  TG: "Togo",
+  TK: "Tokelau",
+  TO: "Tonga",
+  TT: "Trinidad And Tobago",
+  TN: "Tunisia",
+  TR: "Turkey",
+  TM: "Turkmenistan",
+  TC: "Turks And Caicos Islands",
+  TV: "Tuvalu",
+  UG: "Uganda",
+  UA: "Ukraine",
+  AE: "United Arab Emirates",
+  GB: "United Kingdom",
+  US: "United States",
+  UM: "United States Outlying Islands",
+  UY: "Uruguay",
+  UZ: "Uzbekistan",
+  VU: "Vanuatu",
+  VE: "Venezuela",
+  VN: "Viet Nam",
+  VG: "Virgin Islands, British",
+  VI: "Virgin Islands, U.S.",
+  WF: "Wallis And Futuna",
+  EH: "Western Sahara",
+  YE: "Yemen",
+  ZM: "Zambia",
+  ZW: "Zimbabwe",
+};
 function getCountryName(countryCode) {
   if (isoCountries.hasOwnProperty(countryCode)) {
     return isoCountries[countryCode];

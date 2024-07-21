@@ -43,3 +43,27 @@ body {
     display: none;
   }
 }
+
+.extended-forecast {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  place-items: center;
+  margin: 15px 30px;
+}
+.extended {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  align-content: space-around;
+}
+
+@media (min-width: 640px) {
+  .extended-forecast {
+    grid-template-columns: repeat(5, 1fr);
+    margin: 30px;
+  }
+  .extended {
+    grid-template-columns: 1fr;
+  }
+}

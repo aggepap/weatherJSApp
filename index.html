@@ -13,8 +13,8 @@
     />
     <link rel="stylesheet" href="./output.css" />
   </head>
-  <body class="px-5 xl:px-6 py-2 xl:py-6 h-screen md:h-fit">
-    <div class="container bg-blue-600 rounded">
+  <body class="px-2 xl:px-6 py-2 xl:py-6 h-screen md:h-fit">
+    <div class="container bg-blue-600 rounded-t">
       <header
         class="header pb-7 mb-8 w-full px-8 md:px-24 bg-blue-800 flex justify-center shadow-xl rounded-t"
       >
@@ -153,16 +153,16 @@
         <button
           id="extendedBtn"
           type="button"
-          class="bg-blue-950 text-white font-bold px-8 py-3 rounded md:w-fit w-3/5 self-center"
+          class="bg-blue-950 hover:bg-blue-800 transition-colors text-white font-bold px-8 py-3 rounded md:w-fit w-3/5 self-center"
         >
-          Extended Forecast
+          Extended Forecast <span class="extended-icon"></span>
         </button>
       </footer>
     </div>
-    <div class="container bg-blue-800">
-      <div
-        class="extended-forecast mt-4 pb-10 px-15 flex gap-5 flex-col sm:flex-row mx-10 sm:mx-0 w-full justify-start sm:justify-between items-start"
-      ></div>
+    <div class="container bg-blue-800 rounded-b">
+      <div class="extended-forecast-wrapper hidden">
+        <div class="extended-forecast"></div>
+      </div>
     </div>
     <script src="./script.js" type="module"></script>
   </body>
