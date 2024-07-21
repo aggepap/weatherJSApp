@@ -865,10 +865,6 @@ select {
   height: 100%;
 }
 
-.h-screen {
-  height: 100vh;
-}
-
 .w-3\/5 {
   width: 60%;
 }
@@ -1138,6 +1134,9 @@ body {
   grid-template-columns: repeat(4, 1fr);
   justify-items: center;
   align-content: space-around;
+  place-items: center;
+  -moz-column-gap: 5px;
+       column-gap: 5px;
 }
 
 @media (min-width: 640px) {
@@ -1167,11 +1166,6 @@ body {
 }
 
 @media (min-width: 768px) {
-  .md\:h-fit {
-    height: -moz-fit-content;
-    height: fit-content;
-  }
-
   .md\:h-full {
     height: 100%;
   }

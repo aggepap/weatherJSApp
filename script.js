@@ -1,5 +1,5 @@
 const APIKEY = "";
-let lang = "el";
+let lang = "en";
 // QuerySelectors
 const tempDiv = document.querySelector(".weather-deg");
 const tempMinDiv = document.querySelector("#minTemp");
@@ -186,6 +186,9 @@ function addWeatherToPage(data) {
       data.weather[0].description;
   }
 
+  /**
+   * Replaces placeholders with temperatures for API Call
+   */
   function replaceTemps() {
     const temp = Math.round(data.main.temp);
     const tempMax = Math.round(data.main.temp_max);
@@ -205,35 +208,47 @@ function addWeatherToPage(data) {
     windDiv.innerHTML = windSpeed + "bf";
   }
 
+  /**
+   * Shows rain information if weather is rainy
+   */
+
   function showRain() {
     if (data.rain) {
       const rainVolume = data.rain["1h"];
-      const html = `<div class=""> ${rainVolume} mm βροχής</div>`;
+      const html = `<div class=""> ${rainVolume} mm of rain</div>`;
       document.querySelector(".rain-volume").innerHTML = html;
       document.querySelector(".rain-volume").classList.remove("hidden");
     }
   }
 }
 
+/**
+ *  Appends future weather info in extended forecast section
+ * @param {*} data data fetched through get3HoursWeatherFromCoords()
+ *                 function
+ */
 function addExtendedWeatherToPage(data) {
   const list = data.list;
   for (let i = 0; i <= 8; i += 2) {
     const icon = getWeatherIcon(list[i].weather[0].icon, "fa-2x");
     const hour = new Date(list[i].dt * 1000).getHours();
+    const day = new Date(list[i].dt * 1000).getDate();
+    const month = new Date(list[i].dt * 1000).getMonth();
+    const date = day + "/" + month + " - " + hour + ":00";
     const temperature = Math.round(list[i].main.temp);
     const desc = list[i].weather[0].description;
-
+    console.log(day);
     const html = `
-    <div class="extended-${i} extended">
+    <div class="extended-${i} extended w-full">
     <div
       class="extended-weather-icon-wrapper flex flex-row sm:flex-col gap-3 items-center text-white"
     >
       ${icon}
     </div>
       <div class="text-white font-semibold text-xl">
-        <p class="extended-hour text-center">${hour}:00</p>
+        <p class="extended-hour text-center">${date}</p>
       </div>
-    <div class="extended-weather-deg text-white text-3xl pl-3">
+    <div class="extended-weather-deg text-white text-3xl pl-2 ">
       ${temperature}&deg;
     </div>
     <div class="extended-weather-desc text-center  ; text-white">${desc}</div>
@@ -346,7 +361,7 @@ function showInfoIcon(icon) {
   document.querySelector(".weather-icon-wrapper").innerHTML = html;
 }
 
-let isoCountriesEng = {
+let isoCountries = {
   AF: "Afghanistan",
   AX: "Aland Islands",
   AL: "Albania",
@@ -594,253 +609,6 @@ let isoCountriesEng = {
   ZW: "Zimbabwe",
 };
 
-let isoCountries = {
-  AF: "Αφγανιστάν ",
-  AX: "Νήσοι Åland",
-  AL: "Αλβανία",
-  DZ: "Αλγερία",
-  AS: "Σαμόα",
-  AD: "Ανδόρρα",
-  AO: "Ανγκόλα",
-  AI: "Ανγκίλα",
-  AQ: "Ανταρκτική",
-  AG: "Αντίγκουα και Μπαρμπούντα",
-  AR: "Αργεντινή",
-  AM: "Αρμενία",
-  AW: "Αρούμπα",
-  AU: "Αυστραλία",
-  AT: "Αυστρία",
-  AZ: "Αζερμπαιτζάν",
-  BS: "Μπαχάμες",
-  BH: "Μπαχρέιν",
-  BD: "Μπαγκλαντες",
-  BB: "Μπαρμπέιντος",
-  BY: "Λευκορωσία",
-  BE: "Βέλγιο",
-  BZ: "Μπελίζ",
-  BJ: "Μπενίν",
-  BM: "Βερμούδες",
-  BT: "Μπουτάν",
-  BO: "Μπολιβία",
-  BA: "Βοσνία",
-  BW: "Μποτσουάνα",
-  BV: "Νήσοι Μπουβέτ",
-  BR: "Βραζιλία",
-  IO: "Βρετανικά Εδάφη Ινδικού Ωκεανού",
-  BN: "Μπρουνέι",
-  BG: "Βουλγαρία",
-  BF: "Μπουρκίνα φάσο",
-  BI: "Burundi",
-  KH: "Καμπότζη",
-  CM: "Καμερούν",
-  CA: "Καναδάς",
-  CV: "Πράσινο Ακρωτήριο",
-  KY: "Νήσοι Κέιμαν",
-  CF: "Κεντροαφρικανική Δημοκρατία",
-  TD: "Τσαντ",
-  CL: "Χιλή",
-  CN: "Κίνα",
-  CX: "Νήσος Χριστουγέννων",
-  CC: "Cocos (Keeling) Islands",
-  CO: "Κολομβία",
-  KM: "Comoros",
-  CG: "Congo",
-  CD: "Congo, Democratic Republic",
-  CK: "Cook Islands",
-  CR: "Κοστα Ρίκα",
-  CI: "Cote D'Ivoire",
-  HR: "Croatia",
-  CU: "Κούβα",
-  CY: "Κύπρος",
-  CZ: "Τσεχία",
-  DK: "Δανία",
-  DJ: "Τζιμπουτί",
-  DM: "Dominica",
-  DO: "Dominican Republic",
-  EC: "Εκουαδόρ",
-  EG: "Αίγυπτος",
-  SV: "El Salvador",
-  GQ: "Equatorial Guinea",
-  ER: "Eritrea",
-  EE: "Εσθονία",
-  ET: "Ethiopia",
-  FK: "Falkland Islands (Malvinas)",
-  FO: "Faroe Islands",
-  FJ: "Fiji",
-  FI: "Φινλανδία",
-  FR: "Γαλλία",
-  GF: "French Guiana",
-  PF: "French Polynesia",
-  TF: "French Southern Territories",
-  GA: "Gabon",
-  GM: "Gambia",
-  GE: "Georgia",
-  DE: "Γερμανία",
-  GH: "Γκάνα",
-  GI: "Γιβραλτάρ",
-  GR: "Ελλάδα",
-  GL: "Greenland",
-  GD: "Grenada",
-  GP: "Guadeloupe",
-  GU: "Guam",
-  GT: "Guatemala",
-  GG: "Guernsey",
-  GN: "Guinea",
-  GW: "Guinea-Bissau",
-  GY: "Guyana",
-  HT: "Haiti",
-  HM: "Heard Island & Mcdonald Islands",
-  VA: "Holy See (Vatican City State)",
-  HN: "Honduras",
-  HK: "Hong Kong",
-  HU: "Hungary",
-  IS: "Ισλανδία",
-  IN: "India",
-  ID: "Ινδονησία",
-  IR: "Iran, Islamic Republic Of",
-  IQ: "Ιράκ",
-  IE: "Ιρλανδία",
-  IM: "Isle Of Man",
-  IL: "Ισραήλ",
-  IT: "Ιταλία",
-  JM: "Τζαμάικα",
-  JP: "Ιαπωνία",
-  JE: "Jersey",
-  JO: "Ιορδανία",
-  KZ: "Καζακστάν",
-  KE: "Kenya",
-  KI: "Kiribati",
-  KR: "Korea",
-  KW: "Kuwait",
-  KG: "Kyrgyzstan",
-  LA: "Lao People's Democratic Republic",
-  LV: "Latvia",
-  LB: "Lebanon",
-  LS: "Lesotho",
-  LR: "Liberia",
-  LY: "Libyan Arab Jamahiriya",
-  LI: "Liechtenstein",
-  LT: "Lithuania",
-  LU: "Luxembourg",
-  MO: "Macao",
-  MK: "Macedonia",
-  MG: "Madagascar",
-  MW: "Malawi",
-  MY: "Malaysia",
-  MV: "Maldives",
-  ML: "Mali",
-  MT: "Malta",
-  MH: "Marshall Islands",
-  MQ: "Martinique",
-  MR: "Mauritania",
-  MU: "Mauritius",
-  YT: "Mayotte",
-  MX: "Mexico",
-  FM: "Micronesia, Federated States Of",
-  MD: "Moldova",
-  MC: "Monaco",
-  MN: "Mongolia",
-  ME: "Montenegro",
-  MS: "Montserrat",
-  MA: "Morocco",
-  MZ: "Mozambique",
-  MM: "Myanmar",
-  NA: "Namibia",
-  NR: "Nauru",
-  NP: "Nepal",
-  NL: "Netherlands",
-  AN: "Netherlands Antilles",
-  NC: "New Caledonia",
-  NZ: "New Zealand",
-  NI: "Nicaragua",
-  NE: "Niger",
-  NG: "Nigeria",
-  NU: "Niue",
-  NF: "Norfolk Island",
-  MP: "Northern Mariana Islands",
-  NO: "Norway",
-  OM: "Oman",
-  PK: "Pakistan",
-  PW: "Palau",
-  PS: "Palestinian Territory, Occupied",
-  PA: "Panama",
-  PG: "Papua New Guinea",
-  PY: "Paraguay",
-  PE: "Peru",
-  PH: "Philippines",
-  PN: "Pitcairn",
-  PL: "Poland",
-  PT: "Portugal",
-  PR: "Puerto Rico",
-  QA: "Qatar",
-  RE: "Reunion",
-  RO: "Romania",
-  RU: "Russian Federation",
-  RW: "Rwanda",
-  BL: "Saint Barthelemy",
-  SH: "Saint Helena",
-  KN: "Saint Kitts And Nevis",
-  LC: "Saint Lucia",
-  MF: "Saint Martin",
-  PM: "Saint Pierre And Miquelon",
-  VC: "Saint Vincent And Grenadines",
-  WS: "Samoa",
-  SM: "San Marino",
-  ST: "Sao Tome And Principe",
-  SA: "Saudi Arabia",
-  SN: "Senegal",
-  RS: "Serbia",
-  SC: "Seychelles",
-  SL: "Sierra Leone",
-  SG: "Singapore",
-  SK: "Slovakia",
-  SI: "Slovenia",
-  SB: "Solomon Islands",
-  SO: "Somalia",
-  ZA: "South Africa",
-  GS: "South Georgia And Sandwich Isl.",
-  ES: "Spain",
-  LK: "Sri Lanka",
-  SD: "Sudan",
-  SR: "Suriname",
-  SJ: "Svalbard And Jan Mayen",
-  SZ: "Swaziland",
-  SE: "Sweden",
-  CH: "Switzerland",
-  SY: "Syrian Arab Republic",
-  TW: "Taiwan",
-  TJ: "Tajikistan",
-  TZ: "Tanzania",
-  TH: "Thailand",
-  TL: "Timor-Leste",
-  TG: "Togo",
-  TK: "Tokelau",
-  TO: "Tonga",
-  TT: "Trinidad And Tobago",
-  TN: "Tunisia",
-  TR: "Turkey",
-  TM: "Turkmenistan",
-  TC: "Turks And Caicos Islands",
-  TV: "Tuvalu",
-  UG: "Uganda",
-  UA: "Ukraine",
-  AE: "United Arab Emirates",
-  GB: "United Kingdom",
-  US: "United States",
-  UM: "United States Outlying Islands",
-  UY: "Uruguay",
-  UZ: "Uzbekistan",
-  VU: "Vanuatu",
-  VE: "Venezuela",
-  VN: "Viet Nam",
-  VG: "Virgin Islands, British",
-  VI: "Virgin Islands, U.S.",
-  WF: "Wallis And Futuna",
-  EH: "Western Sahara",
-  YE: "Yemen",
-  ZM: "Zambia",
-  ZW: "Zimbabwe",
-};
 function getCountryName(countryCode) {
   if (isoCountries.hasOwnProperty(countryCode)) {
     return isoCountries[countryCode];
@@ -849,6 +617,9 @@ function getCountryName(countryCode) {
   }
 }
 
+/**
+ * Resets basic UI Elements
+ */
 function reset() {
   document.querySelector(".country-name").textContent = "------";
   document.querySelector(".weather-desc").textContent = "------";

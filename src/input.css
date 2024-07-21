@@ -56,6 +56,8 @@ body {
   grid-template-columns: repeat(4, 1fr);
   justify-items: center;
   align-content: space-around;
+  place-items: center;
+  column-gap: 5px;
 }
 
 @media (min-width: 640px) {
