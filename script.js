@@ -1,4 +1,4 @@
-const APIKEY = "c766a3e77513979e1d561f5cf1f1156f";
+const APIKEY = process.env.KEY;
 let lang = "en";
 // QuerySelectors
 const tempDiv = document.querySelector(".weather-deg");
